@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,69 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  image          String?
+  hashedPassword String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  conversations  ConversationParticipant[]
+  messages       Message[]
+  seenMessages   MessageSeen[]
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  name      String?  // Pour les conversations de groupe
+  isGroup   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  lastMessageAt DateTime @default(now())
+  
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  userId         String
+  conversationId String
+  role           String       @default("MEMBER") // ADMIN ou MEMBER pour les groupes
+  joinedAt       DateTime     @default(now())
+  
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  image          String?  // URL de l'image si le message contient une image
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  senderId       String
+  conversationId String
+  
+  sender        User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  seenBy        MessageSeen[]
+}
+
+model MessageSeen {
+  id        String   @id @default(cuid())
+  userId    String
+  messageId String
+  seenAt    DateTime @default(now())
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId])
 }
