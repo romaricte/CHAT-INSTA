@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const message = await db.message.create({
       data: {
         content,
-        chatId,
+        conversationId: chatId,
         senderId: session.user.id,
       },
       include: {

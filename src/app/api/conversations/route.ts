@@ -21,14 +21,14 @@ export async function POST(req: Request) {
       where: {
         AND: [
           {
-            users: {
+            participants: {
               some: {
                 id: session.user.id,
               },
             },
           },
           {
-            users: {
+            participants: {
               some: {
                 id: userId,
               },
@@ -45,19 +45,29 @@ export async function POST(req: Request) {
     // Create new conversation
     const conversation = await db.conversation.create({
       data: {
-        users: {
-          connect: [
+        participants: {
+          create: [
             {
-              id: session.user.id,
+              userId: session.user.id,
             },
             {
-              id: userId,
+              userId: userId,
             },
           ],
         },
       },
       include: {
-        users: true,
+        participants: {
+          include: {
+            user: true
+          }
+        },
+        messages: {
+          include: {
+            seenBy: true,
+            sender: true
+          }
+        }
       },
     });
 

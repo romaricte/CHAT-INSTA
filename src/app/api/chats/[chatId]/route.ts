@@ -18,14 +18,14 @@ export async function GET(
     const conversation = await db.conversation.findFirst({
       where: {
         id: chatId,
-        users: {
+        participants: {
           some: {
             id: session.user.id,
           },
         },
       },
       include: {
-        users: true,
+        participants: true,
         messages: {
           include: {
             sender: true,
@@ -43,7 +43,7 @@ export async function GET(
 
     // Calculate statistics
     const messageCount = conversation.messages.length;
-    const participantCount = conversation.users.length;
+    const participantCount = conversation.participants.length;
 
     // Calculate average response time
     let totalResponseTime = 0;
@@ -70,10 +70,10 @@ export async function GET(
     }));
 
     // Messages by user
-    const messagesByUser = conversation.users.map((user) => ({
-      userId: user.id,
-      userName: user.name,
-      count: conversation.messages.filter((msg) => msg.senderId === user.id)
+    const messagesByUser = conversation.participants.map((user) => ({
+      userId: user.userId,
+      userName: user.userId === session.user.id ? "You" : user.user.name,
+      count: conversation.messages.filter((msg) => msg.senderId === user.userId)
         .length,
     }));
 

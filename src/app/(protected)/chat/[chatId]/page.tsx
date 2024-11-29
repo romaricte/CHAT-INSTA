@@ -12,8 +12,12 @@ interface ChatPageProps {
   };
 }
 
+type MessageWithSender = Message & {
+  sender: User;
+};
+
 export default function ChatPage({ params }: ChatPageProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithSender[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [companion, setCompanion] = useState<User | null>(null);
@@ -35,6 +39,9 @@ export default function ChatPage({ params }: ChatPageProps) {
       if (!response.ok) {
         throw new Error("Failed to send message");
       }
+
+      const newMessage = await response.json();
+      setMessages((current) => [...current, newMessage]);
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {

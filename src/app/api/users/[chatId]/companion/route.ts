@@ -18,7 +18,11 @@ export async function GET(
         id: params.chatId,
       },
       include: {
-        users: true,
+        participants: {
+          include: {
+            user: true
+          }
+        },
       },
     });
 
@@ -26,9 +30,8 @@ export async function GET(
       return new NextResponse("Conversation not found", { status: 404 });
     }
 
-    const companion = conversation.users.find(
-      (user) => user.id !== session.user.id
-    );
+    const companion = conversation.participants
+      .find((participant) => participant.user.id !== session.user.id)?.user;
 
     if (!companion) {
       return new NextResponse("Companion not found", { status: 404 });

@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth"
 import { z } from "zod"
-import { prisma } from "@/lib/db"
+import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import Credentials from "next-auth/providers/credentials"
 
@@ -24,7 +24,7 @@ export const authConfig = {
           }
 
           const { email, password } = parsedCredentials.data
-          const user = await prisma.user.findUnique({
+          const user = await db.user.findUnique({
             where: { email: email.toLowerCase() },
           })
 
@@ -65,7 +65,7 @@ export const authConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
-        session.user.email = token.email
+        session.user.email = token.email as string
         session.user.name = token.name
         session.user.image = token.picture as string | null
       }

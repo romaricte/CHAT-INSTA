@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 
 export async function GET(
   req: Request,
-  { params }: { params: { messageId: string } }
+  { params }: { params: { chatId: string } }
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function GET(
 
     const messages = await db.message.findMany({
       where: {
-        chatId: params.messageId,
+        conversationId: params.chatId,
       },
       include: {
         sender: true,

@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-type ConversationWithUsersAndMessages = Conversation & {
-  users: User[];
+type ConversationWithParticipantsAndMessages = Conversation & {
+  participants: User[];
   messages: Message[];
 };
 
 interface ConversationListProps {
-  conversations: ConversationWithUsersAndMessages[];
+  conversations: ConversationWithParticipantsAndMessages[];
   currentUserId: string;
 }
 
@@ -21,11 +21,11 @@ export default function ConversationList({
 }: ConversationListProps) {
   const router = useRouter();
 
-  const getOtherUser = (conversation: ConversationWithUsersAndMessages) => {
-    return conversation.users.find((user) => user.id !== currentUserId);
+  const getOtherUser = (conversation: ConversationWithParticipantsAndMessages) => {
+    return conversation.participants.find((user) => user.id !== currentUserId);
   };
 
-  const getLastMessage = (conversation: ConversationWithUsersAndMessages) => {
+  const getLastMessage = (conversation: ConversationWithParticipantsAndMessages) => {
     const messages = conversation.messages || [];
     return messages[messages.length - 1];
   };
